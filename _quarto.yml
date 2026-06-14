@@ -77,7 +77,7 @@ format:
       chapters: true
       eq-prefix: ""
     number-depth: 2
-    self-contained: true
+    self-contained: false
 
   elegantbook-pdf:
     pdf-engine: xelatex
