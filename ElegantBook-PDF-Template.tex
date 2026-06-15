@@ -620,6 +620,23 @@
   }%
 }%
 
+%------------------------------------------------------------------------------
+% 17. Equation reference parentheses — Quarto 对公式交叉引用使用 \ref
+%     而非 \eqref，导致编号不带括号。AtBeginDocument 在 hyperref 加载后执行，
+%     确保 \ref 重定义生效（覆盖 hyperref 版本）。
+%------------------------------------------------------------------------------
+\usepackage{xstring}
+\AtBeginDocument{%
+  \let\quartoOldRef\ref
+  \renewcommand{\ref}[1]{%
+    \IfBeginWith{#1}{eq-}{%
+      \textup{(\quartoOldRef{#1})}%
+    }{%
+      \quartoOldRef{#1}%
+    }%
+  }%
+}
+
 %==============================================================================
 % End of ElegantBook PDF Style Preamble (all other hooks cleaned up)
 %==============================================================================
@@ -666,13 +683,13 @@
 \newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
 \usepackage{amsthm}
 \theoremstyle{plain}
+\newtheorem{corollary}{Corollary}[chapter]
+\theoremstyle{plain}
 \newtheorem{lemma}{Lemma}[chapter]
 \theoremstyle{plain}
 \newtheorem{proposition}{Proposition}[chapter]
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[chapter]
-\theoremstyle{plain}
-\newtheorem{corollary}{Corollary}[chapter]
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[chapter]
 \theoremstyle{remark}
@@ -920,7 +937,9 @@ Introduction
 设函数 \(f: [a,b] \to \mathbb{R}\) 连续，在 \((a,b)\) 内可导。则存在
 \(\xi \in (a,b)\)，使得
 
-\begin{equation} f'(\xi) = \frac{f(b) - f(a)}{b - a} \end{equation}
+\begin{equation}\protect\phantomsection\label{eq-einstein}{
+f'(\xi) = \frac{f(b) - f(a)}{b - a}
+}\end{equation}
 
 \end{theorem}
 
@@ -930,8 +949,8 @@ Introduction
 
 \begin{lemma}[费马引理]\protect\hypertarget{lem-fermat}{}\label{lem-fermat}
 
-设函数 \(f\) 在 \(x_0\) 处可导，且 \(x_0\) 是 \(f\) 的极值点，则
-\(f'(x_0) = 0\)。
+设函数 \(f\) 在 \(x_0\) 处可导，由公式 \ref{eq-einstein} 知 \(x_0\) 是
+\(f\) 的极值点，则 \(f'(x_0) = 0\)。
 
 \end{lemma}
 

@@ -63,6 +63,9 @@ book:
 
 bibliography: references.bib
 
+crossref:
+  eq-prefix: ""
+
 format:
   html:
     lang: zh
