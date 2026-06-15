@@ -1,1 +1,0 @@
-Sitemap: https://your-site.example.com/sitemap.xml
