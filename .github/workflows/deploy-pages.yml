@@ -1,4 +1,4 @@
-name: Build and Deploy Site
+name: Build and Deploy GitHub Pages
 
 on:
   push:
@@ -13,12 +13,14 @@ permissions:
   contents: write
 
 concurrency:
-  group: pages-build-and-deploy
+  group: pages-${{ github.repository }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-website:
+  build-and-deploy:
+    name: Build Quarto book and deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       RENV_CONFIG_REPOS_OVERRIDE: https://packagemanager.posit.co/cran/__linux__/noble/latest
@@ -35,7 +37,12 @@ jobs:
       - name: Install system dependencies and CJK fonts
         run: |
           sudo apt-get update
-          sudo apt-get install -y             fontconfig             fonts-noto-cjk             fonts-noto-cjk-extra             libcurl4-openssl-dev             xz-utils
+          sudo apt-get install -y \
+            fontconfig \
+            fonts-noto-cjk \
+            fonts-noto-cjk-extra \
+            libcurl4-openssl-dev \
+            xz-utils
           sudo fc-cache -f -v
 
       - name: Verify TinyTeX and fonts
