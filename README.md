@@ -33,7 +33,7 @@
 
 ### 双格式公用
 
-- 同一套 `.qmd` 源文件，`quarto render --to html` 与 `quarto render --to elegantbook-pdf` 均可用
+- 同一套 `.qmd` 内容源文件，通过 HTML/PDF profiles 分别生成分节网页和连续 PDF
 - 交叉引用（`@thm:label`、`@def:label`）在两种格式间通用
 
 ## GitHub Pages 自动发布
@@ -124,19 +124,19 @@ quarto-elegantbook-pdf-r1/
 将 `_extensions/elegantbook/` 目录复制到你的 Quarto 项目根目录：
 
 ```bash
-cp -r quarto-elegantbook-pdf/_extensions/elegantbook/ your-project/_extensions/
+cp -r quarto-elegantbook-pdf-r1/_extensions/elegantbook/ your-project/_extensions/
 ```
 
 如果你的项目需要 Font Awesome 图标（HTML 输出），一并复制：
 
 ```bash
-cp -r quarto-elegantbook-pdf/_extensions/quarto-ext/fontawesome/ your-project/_extensions/quarto-ext/
+cp -r quarto-elegantbook-pdf-r1/_extensions/quarto-ext/fontawesome/ your-project/_extensions/quarto-ext/
 ```
 
 ### 方法二：Quarto 全局安装
 
 ```bash
-quarto add /path/to/quarto-elegantbook-pdf/_extensions/elegantbook
+quarto add /path/to/quarto-elegantbook-pdf-r1/_extensions/elegantbook
 ```
 
 ## 快速开始
@@ -201,14 +201,14 @@ include-in-header:
 ### 编译
 
 ```bash
-# 生成 PDF
-quarto render --to elegantbook-pdf
+# 生成分节 HTML
+quarto render --profile html --to html
 
-# 生成 HTML
-quarto render --to html
+# 合并各章小节并生成连续 PDF
+python3 scripts/build_pdf_sources.py
+quarto render --profile pdf --to elegantbook-pdf
 
-# 同时生成两种格式
-quarto render
+# GitHub Actions 会依次执行上述两套构建，并将 PDF 复制到 _book/
 ```
 
 ## 支持的环境
