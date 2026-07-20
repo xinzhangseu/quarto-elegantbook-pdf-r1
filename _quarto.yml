@@ -20,14 +20,6 @@ book:
         corresponding: true
       bio: |
         Your bio text here. This will appear on the author page at the end of the book.
-  chapters:
-    - index.qmd
-    - template_chapter1.qmd
-    - template_references.qmd
-    - chap1.qmd
-    - chap2.qmd
-    - ref.qmd
-
   site-url: https://your-site.example.com/
   downloads: [pdf]
   sharing: [twitter, facebook]
@@ -74,7 +66,11 @@ format:
     theme:
       light: [cosmo, theme.scss]
       dark: [cosmo, theme-dark.scss]
-    toc: false
+    toc: true
+    toc-depth: 2
+    toc-expand: true
+    include-after-body:
+      - sidebar-sections.html
     css: styles.css
     crossref:
       chapters: true
@@ -85,9 +81,9 @@ format:
   elegantbook-pdf:
     pdf-engine: xelatex
     keep-tex: true
-    CJKmainfont: "Songti SC"
-    CJKsansfont: "Heiti SC"
-    CJKmonofont: "FangSong_GB2312"
+    CJKmainfont: "Noto Serif CJK SC"
+    CJKsansfont: "Noto Sans CJK SC"
+    CJKmonofont: "Noto Sans Mono CJK SC"
     toc: true
     toc-depth: 2
     number-sections: true

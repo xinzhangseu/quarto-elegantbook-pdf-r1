@@ -1,0 +1,74 @@
+name: Build and Deploy Site
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-build-and-deploy
+  cancel-in-progress: true
+
+jobs:
+  build-website:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      RENV_CONFIG_REPOS_OVERRIDE: https://packagemanager.posit.co/cran/__linux__/noble/latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Quarto and TinyTeX
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          tinytex: true
+
+      - name: Install system dependencies and CJK fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y             fontconfig             fonts-noto-cjk             fonts-noto-cjk-extra             libcurl4-openssl-dev             xz-utils
+          sudo fc-cache -f -v
+
+      - name: Verify TinyTeX and fonts
+        run: |
+          quarto list tools
+          fc-match "Noto Serif CJK SC"
+          fc-match "Noto Sans CJK SC"
+          fc-match "Noto Sans Mono CJK SC"
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Restore R dependencies
+        if: ${{ hashFiles('renv.lock') != '' }}
+        uses: r-lib/actions/setup-renv@v2
+        with:
+          cache-version: 2
+
+      - name: Build HTML
+        run: quarto render --profile html --to html
+
+      - name: Build continuous PDF
+        run: |
+          python3 scripts/build_pdf_sources.py
+          quarto render --profile pdf --to elegantbook-pdf
+          find _book-pdf -maxdepth 1 -type f -name '*.pdf' -exec cp {} _book/ \;
+
+      - name: Deploy to gh-pages
+        if: github.event_name != 'pull_request'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: _book
+          clean: true

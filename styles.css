@@ -23,11 +23,25 @@ header#title-block-header:has(.chapter-number) {
     display: block !important;
 }
 
+/* Show the generated number and title at the top of each standalone section page. */
+header#title-block-header.section-title-block {
+    display: block !important;
+    width: 100% !important;
+    text-align: left !important;
+    margin: 0 0 1.5rem 0 !important;
+}
+
+header#title-block-header.section-title-block h1.title {
+    width: 100% !important;
+    margin-top: 0 !important;
+    text-align: left !important;
+}
+
 
 /* 2. 启用精准 Grid 网格：左边固定 260px，右边占满所有剩余空间 */
 #quarto-content {
     display: grid !important;
-    grid-template-columns: 260px 1fr !important;
+    grid-template-columns: 300px 1fr !important;
     width: 100% !important;
     align-items: start !important; /* 保证所有内容从顶部开始自然往下排布 */
 }
@@ -103,3 +117,224 @@ main.content h1, main.content h2, main.content h3, main.content p, #title-block-
     }
 }
 
+
+
+/* ========== GitBook typography match ========== */
+
+/*
+ * Typography measured from:
+ * https://math.pku.edu.cn/teachers/lidf/docs/statcomp/html/_statcompbook/
+ *
+ * Reference values:
+ * body 16px / 27.2px, paragraph gap 13.6px;
+ * headings 32px, 28px, 24px, 20px with 1.7 line-height.
+ */
+
+body,
+main.content {
+    font-family: "Helvetica Neue", Helvetica, Arial, "Noto Sans CJK SC", sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 400;
+    line-height: 1.7 !important;
+    letter-spacing: 0.2px;
+}
+
+/* Match the reference page's readable text measure. */
+main.content {
+    max-width: 870px !important;
+}
+
+/* Body copy and list spacing: 16px × 0.85 = 13.6px. */
+main.content p,
+main.content ul,
+main.content ol,
+main.content dl,
+main.content blockquote {
+    font-size: 16px;
+    line-height: 1.7;
+    margin-top: 0;
+    margin-bottom: 0.85rem;
+}
+
+/* GitBook heading scale and proportional vertical rhythm. */
+main.content h1,
+main.content .h1,
+main.content h2,
+main.content .h2,
+main.content h3,
+main.content .h3,
+main.content h4,
+main.content .h4 {
+    font-family: "Helvetica Neue", Helvetica, Arial, "Noto Sans CJK SC", sans-serif !important;
+    font-weight: 700 !important;
+    line-height: 1.7 !important;
+    letter-spacing: 0.2px;
+    margin-top: 1.275em !important;
+    margin-bottom: 0.85em !important;
+}
+
+main.content h1,
+main.content .h1 {
+    font-size: 32px !important;
+}
+
+main.content h2,
+main.content .h2 {
+    font-size: 28px !important;
+}
+
+main.content h3,
+main.content .h3 {
+    font-size: 24px !important;
+}
+
+main.content h4,
+main.content .h4 {
+    font-size: 20px !important;
+}
+
+/* Keep inline code slightly smaller, matching the reference page. */
+main.content :not(pre) > code {
+    font-size: 14px;
+}
+
+main.content pre {
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 16px;
+    line-height: 1.7;
+    margin-top: 0;
+    margin-bottom: 1.275rem;
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+}
+
+/* Preserve comfortable proportions on narrow screens. */
+@media (max-width: 767.98px) {
+    main.content {
+        padding: 30px 20px !important;
+    }
+}
+
+
+/* ========== Sections nested below active chapter ========== */
+
+#quarto-sidebar .current-chapter-sections {
+    display: block !important;
+    margin: 0.25rem 0 0.55rem 0 !important;
+    padding: 0 0 0 1.15rem !important;
+    list-style: none !important;
+}
+
+#quarto-sidebar .current-chapter-sections ul {
+    display: block !important;
+    margin: 0 !important;
+    padding-left: 0.9rem !important;
+    list-style: none !important;
+}
+
+#quarto-sidebar .current-chapter-sections li {
+    display: block;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+}
+
+#quarto-sidebar .current-chapter-sections a {
+    display: block;
+    padding: 0.18rem 0.35rem;
+    border-left: 1px solid rgba(128, 128, 128, 0.25);
+    color: var(--bs-body-color);
+    font-size: 0.82rem;
+    font-weight: 400;
+    line-height: 1.4;
+    text-decoration: none;
+}
+
+#quarto-sidebar .current-chapter-sections a:hover {
+    color: var(--bs-link-color);
+    border-left-color: var(--bs-link-color);
+}
+
+#quarto-sidebar .current-chapter-sections a.active {
+    color: var(--bs-link-color);
+    border-left: 2px solid var(--bs-link-color);
+    font-weight: 600;
+}
+
+/* Keep the active chapter visually stronger than its nested sections. */
+#quarto-sidebar li.current-chapter > .sidebar-item-container > a,
+#quarto-sidebar li.current-chapter > a {
+    font-weight: 600;
+}
+
+
+/* ========== Wider sidebar and square PDF tool ========== */
+
+/* Give long chapter titles enough room to remain on one line. */
+#quarto-sidebar {
+    width: 300px !important;
+}
+
+#quarto-sidebar .sidebar-item-text {
+    white-space: normal;
+}
+
+/* Normalize the PDF download tool to a square, centered control. */
+#quarto-sidebar .quarto-navigation-tool[aria-label="Download PDF"] {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0 !important;
+    line-height: 1;
+    box-sizing: border-box;
+    border: 0 !important;
+    border-bottom: 0 !important;
+    border-radius: 0;
+    text-decoration: none !important;
+    box-shadow: none !important;
+}
+
+#quarto-sidebar .quarto-navigation-tool[aria-label="Download PDF"]:hover,
+#quarto-sidebar .quarto-navigation-tool[aria-label="Download PDF"]:focus,
+#quarto-sidebar .quarto-navigation-tool[aria-label="Download PDF"]:active {
+    border: 0 !important;
+    border-bottom: 0 !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+}
+
+#quarto-sidebar .quarto-navigation-tool[aria-label="Download PDF"] .bi {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+#quarto-sidebar .quarto-navigation-tool[aria-label="Download PDF"] .bi::before {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1;
+}/* ========== Current chapter sidebar hierarchy ========== */
+
+/* Classes are added after Quarto flattens the book navigation. */
+#quarto-sidebar li.book-chapter-item > .sidebar-item-container {
+    padding-left: 0.35rem !important;
+}
+
+#quarto-sidebar li.book-section-item > .sidebar-item-container {
+    padding-left: 1.35rem !important;
+}
+
+#quarto-sidebar li.book-section-item > .sidebar-item-container .sidebar-link {
+    font-size: 0.88rem;
+}
+
+#quarto-sidebar li.book-section-item[hidden] {
+    display: none !important;
+}
+
+#quarto-sidebar li.book-chapter-item.current-book-chapter > .sidebar-item-container .sidebar-link {
+    font-weight: 600;
+}
