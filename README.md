@@ -1,7 +1,13 @@
 # ElegantBook PDF Format Extension for Quarto
 
+[![Build and Deploy GitHub Pages](https://github.com/xinzhangseu/quarto-elegantbook-pdf-r1/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/xinzhangseu/quarto-elegantbook-pdf-r1/actions/workflows/deploy-pages.yml)
+
 将 ElegantBook LaTeX 模板的视觉样式完整移植到 Quarto 的自定义 PDF 格式扩展，
 同时兼容 HTML 输出。面向中文学术写作场景（数学、统计、金融等领域）。
+
+- 在线阅读：[GitHub Pages](https://xinzhangseu.github.io/quarto-elegantbook-pdf-r1/)
+- 构建状态：[GitHub Actions](https://github.com/xinzhangseu/quarto-elegantbook-pdf-r1/actions)
+- 发布分支：[gh-pages](https://github.com/xinzhangseu/quarto-elegantbook-pdf-r1/tree/gh-pages)
 
 ## 功能概览
 
@@ -30,43 +36,85 @@
 - 同一套 `.qmd` 源文件，`quarto render --to html` 与 `quarto render --to elegantbook-pdf` 均可用
 - 交叉引用（`@thm:label`、`@def:label`）在两种格式间通用
 
+## GitHub Pages 自动发布
+
+仓库通过 [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) 自动构建并发布 Quarto Book。
+
+### 触发方式
+
+- Push 到 `main`：构建 HTML 和 PDF，并部署到 `gh-pages`
+- 向 `main` 提交 Pull Request：只验证构建，不执行发布
+- 在 Actions 页面运行 `workflow_dispatch`：手动触发构建与发布
+
+### 发布流程
+
+```text
+push 到 main
+    ↓
+安装 Quarto、TinyTeX、R、系统依赖及 Noto CJK 字体
+    ↓
+使用 _quarto-html.yml 构建分节 HTML → _book/
+    ↓
+运行 scripts/build_pdf_sources.py 合并 PDF 章节源文件
+    ↓
+使用 _quarto-pdf.yml 构建连续 PDF，并复制到 _book/
+    ↓
+JamesIves/github-pages-deploy-action@v4
+    ↓
+将 _book/ 的内容提交到 gh-pages
+    ↓
+GitHub Pages 从 gh-pages / (root) 发布网站
+```
+
+部署步骤的核心配置为：
+
+```yaml
+- name: Deploy to gh-pages
+  if: github.event_name != 'pull_request'
+  uses: JamesIves/github-pages-deploy-action@v4
+  with:
+    branch: gh-pages
+    folder: _book
+    clean: true
+```
+
+其中：
+
+- `branch: gh-pages` 指定 GitHub Pages 发布分支
+- `folder: _book` 只发布 Quarto 构建结果，不发布项目源文件
+- `clean: true` 删除发布分支中已经不属于当前构建结果的旧文件
+- `permissions: contents: write` 允许 Action 使用 `GITHUB_TOKEN` 更新 `gh-pages`
+
+> `gh-pages` 是自动生成的发布分支，不应直接编辑。内容修改应提交到 `main`，由工作流重新构建并部署。
+
 ## 项目结构
 
-```
-quarto-elegantbook-pdf/
-├── _quarto.yml                          # 项目配置（含标题页内嵌 LaTeX）
-├── _variables.yml                       # 模板变量（ORCID, GitHub, PGP 等）
-├── references.bib                       # 参考文献数据库
-├── styles.css                           # HTML 布局 CSS
-├── theme.scss / theme-dark.scss         # HTML 亮色/暗色主题
-├── div-environments.lua                 # Lua 过滤器（环境映射 + 页码控制）
-├── images/
-│   ├── cover.jpg                        # 封面图片
-│   ├── logo-blue.png                    # ElegantBook logo
-│   └── openscapes_hex.png              # 侧边栏图标
-├── index.qmd                            # 首页 / 引言
-├── chap1.qmd                            # 测试章 1
-├── chap2.qmd                            # 测试章 2
-├── ref.qmd                              # 参考文献页
-├── template_chapter1.qmd                # 模板章（随机控制理论 / SDE）
+```text
+quarto-elegantbook-pdf-r1/
+├── .github/workflows/deploy-pages.yml    # GitHub Pages 自动构建与部署
+├── _quarto.yml                           # HTML/PDF 共用的 Quarto 配置
+├── _quarto-html.yml                      # HTML 独立小节页面及章节顺序
+├── _quarto-pdf.yml                       # 自动生成的 PDF 合并章节配置
+├── _variables.yml                        # ORCID、GitHub、PGP 等模板变量
+├── index.qmd                             # 书籍首页
+├── chapter/
+│   ├── template_chapter1.qmd             # 第一章章标题页
+│   ├── chapter1/01.qmd ... 11.qmd        # 第一章各小节
+│   ├── chap1.qmd / chap2.qmd             # 其他章标题页
+│   ├── chapter2/                         # 第二章各小节
+│   ├── chapter3/                         # 第三章各小节
+│   ├── template_references.qmd
+│   └── ref.qmd
+├── pdf-merged/                           # 供 PDF 使用的连续合并章节
+├── scripts/build_pdf_sources.py          # 从 chapter/ 自动生成 pdf-merged/
+├── styles.css                            # HTML 页面与侧边栏样式
+├── sidebar-sections.html                 # HTML 小节编号及当前章导航
+├── theme.scss / theme-dark.scss          # HTML 亮色/暗色主题
+├── references.bib                        # 参考文献数据库
+├── images/                               # 封面、logo 和页面图片
 └── _extensions/
-    ├── elegantbook/                     # 格式扩展（核心）
-    │   ├── _extension.yml              # 扩展元数据 & LaTeX 配置
-    │   ├── div-environments.lua        # 扩展内 Lua 过滤器（定理环境）
-    │   ├── math-no-auto-number.lua     # Lua 过滤器（公式编号控制：仅标签公式编号）
-    │   ├── orcidlink.sty               # ORCID 图标 LaTeX 包
-    │   ├── plainnat-doi.bst            # BibTeX 样式（DOI 支持）
-    │   ├── includes/
-    │   │   ├── header-includes.tex     # LaTeX 导言区（颜色/字体/定理/页眉页脚/标题页/公式引用括号）
-    │   │   └── before-body.tex         # 文档体起始定义（定理环境重定义）
-    │   └── partials/
-    │       ├── title.tex               # 标题元数据模板
-    │       ├── author.tex              # 作者渲染模板
-    │       ├── affiliation.tex         # 机构渲染模板
-    │       ├── before-bib.tex          # 参考文献页眉抑制
-    │       └── after-body.tex          # 作者简介（bio）
-    └── quarto-ext/
-        └── fontawesome/                # Font Awesome 扩展（HTML 图标短代码）
+    ├── elegantbook/                      # ElegantBook PDF 格式扩展
+    └── quarto-ext/fontawesome/           # Font Awesome HTML 扩展
 ```
 
 ## 安装
